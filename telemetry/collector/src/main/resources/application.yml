@@ -1,0 +1,24 @@
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+      acks: all
+      retries: 10
+      retry-backoff-ms: 200
+      linger-ms: 10
+      batch-size: 32768
+      compression-type: snappy
+
+app:
+  kafka:
+    topics:
+      hubs: telemetry.hubs.v1
+      sensors: telemetry.sensors.v1
+      snapshots: telemetry.snapshots.v1
+
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
