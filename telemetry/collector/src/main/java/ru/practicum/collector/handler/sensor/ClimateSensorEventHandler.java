@@ -8,8 +8,6 @@ import ru.practicum.collector.model.sensor.SensorEventType;
 import ru.yandex.practicum.kafka.telemetry.event.ClimateSensorAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 
-import java.util.Map;
-
 @Component
 public class ClimateSensorEventHandler extends BaseSensorEventHandler {
 
@@ -41,10 +39,6 @@ public class ClimateSensorEventHandler extends BaseSensorEventHandler {
     @Override
     public void handle(SensorEvent event) {
         var avro = mapToAvro(event);
-        publisher.sendToSensors(null, avro, Map.of(
-                "event-type", event.getType().toString(),
-                "schema", avro.getSchema().getFullName(),
-                "traceId", java.util.UUID.randomUUID().toString()
-        ));
+        publisher.send(null, avro);
     }
 }

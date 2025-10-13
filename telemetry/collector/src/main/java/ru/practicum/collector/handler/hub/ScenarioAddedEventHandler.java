@@ -8,7 +8,6 @@ import ru.practicum.collector.model.hub.ScenarioAddedEvent;
 import ru.yandex.practicum.kafka.telemetry.event.*;
 
 import java.util.List;
-import java.util.Map;
 
 @Component
 public class ScenarioAddedEventHandler extends BaseHubEventHandler {
@@ -25,11 +24,7 @@ public class ScenarioAddedEventHandler extends BaseHubEventHandler {
     @Override
     public void handle(HubEvent event) {
         var avro = mapToAvro(event);
-        publisher.sendToHubs(null, avro, Map.of(
-                "event-type", event.getType().toString(),
-                "schema", avro.getSchema().getFullName(),
-                "traceId", java.util.UUID.randomUUID().toString()
-        ));
+        publisher.send(null, avro);
     }
 
     @Override

@@ -8,8 +8,6 @@ import ru.practicum.collector.model.sensor.SensorEventType;
 import ru.yandex.practicum.kafka.telemetry.event.MotionSensorAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 
-import java.util.Map;
-
 @Component
 public class MotionSensorEventHandler extends BaseSensorEventHandler {
 
@@ -25,11 +23,7 @@ public class MotionSensorEventHandler extends BaseSensorEventHandler {
     @Override
     public void handle(SensorEvent event) {
         var avro = mapToAvro(event);
-        publisher.sendToSensors(event.getId(), avro, Map.of(
-                "event-type", event.getType().toString(),
-                "schema", avro.getSchema().getFullName(),
-                "traceId", java.util.UUID.randomUUID().toString()
-        ));
+        publisher.send(event.getId(), avro);
     }
 
     @Override

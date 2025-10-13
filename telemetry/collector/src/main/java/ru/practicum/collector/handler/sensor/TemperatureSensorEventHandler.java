@@ -8,8 +8,6 @@ import ru.practicum.collector.model.sensor.TemperatureSensorEvent;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.TemperatureSensorAvro;
 
-import java.util.Map;
-
 @Component
 public class TemperatureSensorEventHandler extends BaseSensorEventHandler {
 
@@ -25,11 +23,7 @@ public class TemperatureSensorEventHandler extends BaseSensorEventHandler {
     @Override
     public void handle(SensorEvent event) {
         var avro = mapToAvro(event);
-        publisher.sendToSensors(event.getId(), avro, Map.of(
-                "event-type", event.getType().toString(),
-                "schema", avro.getSchema().getFullName(),
-                "traceId", java.util.UUID.randomUUID().toString()
-        ));
+        publisher.send(event.getId(), avro);
     }
 
     @Override

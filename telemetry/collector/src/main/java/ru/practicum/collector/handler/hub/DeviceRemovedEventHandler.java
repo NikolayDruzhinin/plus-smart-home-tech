@@ -8,8 +8,6 @@ import ru.practicum.collector.model.hub.HubEventType;
 import ru.yandex.practicum.kafka.telemetry.event.DeviceRemovedEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 
-import java.util.Map;
-
 @Component
 public class DeviceRemovedEventHandler extends BaseHubEventHandler {
 
@@ -25,11 +23,7 @@ public class DeviceRemovedEventHandler extends BaseHubEventHandler {
     @Override
     public void handle(HubEvent event) {
         var avro = mapToAvro(event);
-        publisher.sendToHubs(null, avro, Map.of(
-                "event-type", event.getType().toString(),
-                "schema", avro.getSchema().getFullName(),
-                "traceId", java.util.UUID.randomUUID().toString()
-        ));
+        publisher.send(null, avro);
     }
 
     @Override

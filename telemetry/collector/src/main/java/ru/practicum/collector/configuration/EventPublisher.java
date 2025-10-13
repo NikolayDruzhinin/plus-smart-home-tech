@@ -8,6 +8,8 @@ import org.apache.kafka.common.header.internals.RecordHeader;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import ru.practicum.kafka.serializer.GeneralAvroSerializer;
+import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
+import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -21,30 +23,30 @@ public class EventPublisher {
     private final AppKafkaProperties properties;
     private final GeneralAvroSerializer generalAvroSerializer;
 
-    public CompletableFuture<Void> sendToSensors(String key, SpecificRecordBase recordBase, Map<String, String> headers) {
-        String topic = properties.topics().sensors();
-        byte[] payload = generalAvroSerializer.serialize(topic, recordBase);
-        return send(topic, key, payload, headers);
-    }
-
-    public CompletableFuture<Void> sendToHubs(String key, SpecificRecordBase recordBase, Map<String, String> headers) {
-        String topic = properties.topics().hubs();
-        byte[] payload = generalAvroSerializer.serialize(topic, recordBase);
-        return send(topic, key, payload, headers);
-    }
-
-    public CompletableFuture<Void> sendToSnapshots(String key, SpecificRecordBase recordBase, Map<String, String> headers) {
-        String topic = properties.topics().snapshots();
-        byte[] payload = generalAvroSerializer.serialize(topic, recordBase);
-        return send(topic, key, payload, headers);
-    }
-
-    private CompletableFuture<Void> send(String topic, String key, byte[] payload, Map<String, String> headers) {
-        var record = new ProducerRecord<>(topic, key, payload);
-        if (headers != null) {
-            headers.forEach((k, v) ->
-                    record.headers().add(new RecordHeader(k, v.getBytes(StandardCharsets.UTF_8))));
+    public CompletableFuture<Void> send(String key, SpecificRecordBase recordBase) {
+        String topic;
+        String eventType;
+        if (recordBase.getSchema().equals(HubEventAvro.getClassSchema())) {
+            topic = properties.topics().hubs();
+            eventType = "hub-event";
+        } else if (recordBase.getSchema().equals(SensorEventAvro.getClassSchema())) {
+            topic = properties.topics().sensors();
+            eventType = "sensor-event";
+        } else {
+            throw new RuntimeException("Unsupported schema " + recordBase.getSchema().toString());
         }
+
+        Map<String, String> headers = Map.of(
+                "event-type", eventType,
+                "schema", recordBase.getSchema().getFullName(),
+                "traceId", java.util.UUID.randomUUID().toString()
+        );
+        byte[] payload = generalAvroSerializer.serialize(topic, recordBase);
+
+        var record = new ProducerRecord<>(topic, key, payload);
+        headers.forEach((k, v) ->
+                record.headers().add(new RecordHeader(k, v.getBytes(StandardCharsets.UTF_8))));
+
         return template.send(record)
                 .thenAccept(res -> {
                     log.info("Sent {} bytes in topic [{}]", payload.length, topic);

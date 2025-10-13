@@ -9,8 +9,6 @@ import ru.yandex.practicum.kafka.telemetry.event.DeviceAddedEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.DeviceTypeAvro;
 import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 
-import java.util.Map;
-
 @Component
 public class DeviceAddedEventHandler extends BaseHubEventHandler {
     public DeviceAddedEventHandler(EventPublisher publisher) {
@@ -25,11 +23,7 @@ public class DeviceAddedEventHandler extends BaseHubEventHandler {
     @Override
     public void handle(HubEvent event) {
         HubEventAvro avro = mapToAvro(event);
-        publisher.sendToHubs(null, avro, Map.of(
-                "event-type", event.getType().toString(),
-                "schema", avro.getSchema().getFullName(),
-                "traceId", java.util.UUID.randomUUID().toString()
-        ));
+        publisher.send(null, avro);
     }
 
     @Override
