@@ -2,39 +2,40 @@ package ru.practicum.collector.handler.hub;
 
 import org.springframework.stereotype.Component;
 import ru.practicum.collector.configuration.EventPublisher;
-import ru.practicum.collector.model.hub.HubEvent;
-import ru.practicum.collector.model.hub.HubEventType;
-import ru.practicum.collector.model.hub.ScenarioRemovedEvent;
+import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
+import ru.yandex.practicum.grpc.telemetry.event.ScenarioRemovedEventProto;
 import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.ScenarioRemovedEventAvro;
 
-@Component
-public class ScenarioRemovedEventHandler extends BaseHubEventHandler {
+import java.time.Instant;
 
-    public ScenarioRemovedEventHandler(EventPublisher publisher) {
+@Component
+public class ScenarioRemovedEvent extends BaseHubEventHandler {
+
+    public ScenarioRemovedEvent(EventPublisher publisher) {
         super(publisher);
     }
 
     @Override
-    public HubEventType getMessageType() {
-        return HubEventType.SCENARIO_REMOVED;
+    public HubEventProto.PayloadCase getMessageType() {
+        return HubEventProto.PayloadCase.SCENARIO_REMOVED;
     }
 
     @Override
-    public void handle(HubEvent event) {
+    public void handle(HubEventProto event) {
         var avro = mapToAvro(event);
         publisher.send(null, avro);
     }
 
     @Override
-    protected HubEventAvro mapToAvro(HubEvent event) {
-        ScenarioRemovedEvent e = (ScenarioRemovedEvent) event;
+    protected HubEventAvro mapToAvro(HubEventProto event) {
+        ScenarioRemovedEventProto e = event.getScenarioRemoved();
         var payload = ScenarioRemovedEventAvro.newBuilder()
                 .setName(e.getName())
                 .build();
         return HubEventAvro.newBuilder()
                 .setHubId(event.getHubId())
-                .setTimestamp(event.getTimestamp())
+                .setTimestamp(Instant.ofEpochSecond(event.getTimestamp().getSeconds(), event.getTimestamp().getNanos()))
                 .setPayload(payload)
                 .build();
     }
