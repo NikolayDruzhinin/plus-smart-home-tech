@@ -2,7 +2,7 @@ package ru.practicum.collector.handler.sensor;
 
 import ru.practicum.collector.configuration.EventPublisher;
 import ru.practicum.collector.handler.SensorEventHandler;
-import ru.practicum.collector.model.sensor.SensorEvent;
+import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 
 public abstract class BaseSensorEventHandler implements SensorEventHandler {
@@ -12,5 +12,5 @@ public abstract class BaseSensorEventHandler implements SensorEventHandler {
         this.publisher = publisher;
     }
 
-    protected abstract SensorEventAvro mapToAvro(SensorEvent event);
+    protected abstract SensorEventAvro mapToAvro(SensorEventProto eventProto);
 }

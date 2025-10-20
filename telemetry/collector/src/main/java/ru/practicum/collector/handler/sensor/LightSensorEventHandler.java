@@ -2,11 +2,12 @@ package ru.practicum.collector.handler.sensor;
 
 import org.springframework.stereotype.Component;
 import ru.practicum.collector.configuration.EventPublisher;
-import ru.practicum.collector.model.sensor.LightSensorEvent;
-import ru.practicum.collector.model.sensor.SensorEvent;
-import ru.practicum.collector.model.sensor.SensorEventType;
+import ru.yandex.practicum.grpc.telemetry.event.LightSensorProto;
+import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 import ru.yandex.practicum.kafka.telemetry.event.LightSensorAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
+
+import java.time.Instant;
 
 @Component
 public class LightSensorEventHandler extends BaseSensorEventHandler {
@@ -16,13 +17,8 @@ public class LightSensorEventHandler extends BaseSensorEventHandler {
     }
 
     @Override
-    public SensorEventType getMessageType() {
-        return SensorEventType.LIGHT_SENSOR_EVENT;
-    }
-
-    @Override
-    protected SensorEventAvro mapToAvro(SensorEvent event) {
-        LightSensorEvent e = (LightSensorEvent) event;
+    protected SensorEventAvro mapToAvro(SensorEventProto event) {
+        LightSensorProto e = event.getLightSensorProto();
         var payload = LightSensorAvro.newBuilder()
                 .setLinkQuality(e.getLinkQuality())
                 .setLuminosity(e.getLuminosity())
@@ -30,13 +26,18 @@ public class LightSensorEventHandler extends BaseSensorEventHandler {
         return SensorEventAvro.newBuilder()
                 .setId(event.getId())
                 .setHubId(event.getHubId())
-                .setTimestamp(event.getTimestamp())
+                .setTimestamp(Instant.ofEpochSecond(event.getTimestamp().getSeconds(), event.getTimestamp().getNanos()))
                 .setPayload(payload)
                 .build();
     }
 
     @Override
-    public void handle(SensorEvent event) {
+    public SensorEventProto.PayloadCase getMessageType() {
+        return SensorEventProto.PayloadCase.LIGHT_SENSOR_PROTO;
+    }
+
+    @Override
+    public void handle(SensorEventProto event) {
         var avro = mapToAvro(event);
         publisher.send(event.getId(), avro);
     }
