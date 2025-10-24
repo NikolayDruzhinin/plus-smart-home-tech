@@ -10,8 +10,8 @@ import ru.practicum.collector.configuration.AppKafkaProperties;
         "ru.practicum.kafka.serializer",
         "ru/practicum/collector"
 })
-public class Application {
+public class CollectorApp {
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(CollectorApp.class, args);
     }
 }
