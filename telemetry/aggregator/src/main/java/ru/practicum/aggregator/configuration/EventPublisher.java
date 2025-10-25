@@ -1,4 +1,4 @@
-package ru.practicum.collector.configuration;
+package ru.practicum.aggregator.configuration;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

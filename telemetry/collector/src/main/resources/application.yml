@@ -22,3 +22,7 @@ logging:
   level:
     root: INFO
     org.springframework: INFO
+
+grpc:
+  server:
+    port: 59091
