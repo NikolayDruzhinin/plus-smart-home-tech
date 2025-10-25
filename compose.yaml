@@ -34,18 +34,14 @@ services:
                              --bootstrap-server kafka:29092'"
     init: true
 
-  postgres:
-    image: postgres:15
-    container_name: telemetry-postgres
-    restart: always
-    environment:
-      POSTGRES_DB: telemetry_analyzer
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: shareit
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.4.3
+    container_name: schema-registry
+    depends_on:
+      - kafka
     ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-
-volumes:
-  pgdata:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:29092

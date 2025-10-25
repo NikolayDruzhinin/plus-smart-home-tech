@@ -9,15 +9,9 @@ import ru.practicum.analyzer.model.Condition;
 import ru.practicum.analyzer.model.Scenario;
 import ru.practicum.analyzer.repository.ScenarioRepository;
 import ru.practicum.analyzer.service.grpc.HubRouterClient;
-import ru.yandex.practicum.grpc.telemetry.event.DeviceActionRequest;
-import ru.yandex.practicum.kafka.telemetry.event.ClimateSensorAvro;
-import ru.yandex.practicum.kafka.telemetry.event.LightSensorAvro;
-import ru.yandex.practicum.kafka.telemetry.event.MotionSensorAvro;
-import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
-import ru.yandex.practicum.kafka.telemetry.event.SensorStateAvro;
-import ru.yandex.practicum.kafka.telemetry.event.SwitchSensorAvro;
-import ru.yandex.practicum.kafka.telemetry.event.TemperatureSensorAvro;
 import ru.practicum.analyzer.mapper.DeviceActionRequestMapper;
+import ru.yandex.practicum.grpc.telemetry.event.DeviceActionRequest;
+import ru.yandex.practicum.kafka.telemetry.event.*;
 
 
 import java.time.Instant;

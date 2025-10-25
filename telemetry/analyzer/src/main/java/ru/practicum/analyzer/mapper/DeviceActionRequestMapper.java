@@ -2,10 +2,10 @@ package ru.practicum.analyzer.mapper;
 
 import com.google.protobuf.Timestamp;
 import ru.practicum.analyzer.model.Scenario;
+import ru.practicum.analyzer.model.Action;
 import ru.yandex.practicum.grpc.telemetry.event.ActionTypeProto;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceActionProto;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceActionRequest;
-import ru.practicum.analyzer.model.Action;
 
 import java.time.Instant;
 import java.util.List;
