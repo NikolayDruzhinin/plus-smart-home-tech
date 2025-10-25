@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import ru.practicum.collector.configuration.EventPublisher;
+import ru.practicum.aggregator.configuration.EventPublisher;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 
 /**
