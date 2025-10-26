@@ -1,4 +1,4 @@
-package ru.practicum.analyzer.deserializer;
+package ru.practicum.kafka.deserializer;
 
 import org.apache.avro.io.BinaryDecoder;
 import org.apache.avro.io.DecoderFactory;

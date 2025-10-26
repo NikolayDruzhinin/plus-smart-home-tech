@@ -5,17 +5,17 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.analyzer.mapper.DeviceActionRequestMapper;
 import ru.practicum.analyzer.model.Condition;
 import ru.practicum.analyzer.model.Scenario;
 import ru.practicum.analyzer.repository.ScenarioRepository;
 import ru.practicum.analyzer.service.grpc.HubRouterClient;
-import ru.practicum.analyzer.mapper.DeviceActionRequestMapper;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceActionRequest;
 import ru.yandex.practicum.kafka.telemetry.event.*;
 
-
 import java.time.Instant;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -32,19 +32,19 @@ public class ScenarioEvaluationService {
 
         List<Scenario> scenarios = scenarioRepository.findByHubId(hubId);
         if (scenarios.isEmpty()) {
-            log.info("Нет сценариев для хаба {}", hubId);
+            log.info("No scenarios for hub {}", hubId);
             return;
         }
 
-        log.info("🔍 Получено {} сценариев для хаба {}", scenarios.size(), hubId);
+        log.info("Get {} scenarios for hub {}", scenarios.size(), hubId);
         for (Scenario scenario : scenarios) {
-            log.info("🧪 Проверяю сценарий '{}'", scenario.getName());
+            log.info("Check scenario '{}'", scenario.getName());
             scenario.getConditions().forEach((sensorId, condition) -> {
                 SensorStateAvro state = states.get(sensorId);
                 if (state == null) {
-                    log.warn("❌ Нет состояния сенсора {} в снапшоте", sensorId);
+                    log.warn("No sensor id {} in snapshot", sensorId);
                 } else {
-                    log.info("✅ Состояние сенсора {}: тип = {}", sensorId, state.getData().getClass().getSimpleName());
+                    log.info("Sensor condition {}: type = {}", sensorId, state.getData().getClass().getSimpleName());
                 }
             });
         }
@@ -59,7 +59,7 @@ public class ScenarioEvaluationService {
             });
 
             if (matched) {
-                log.info("🎯 Сценарий '{}' активирован", scenario.getName());
+                log.info("Scenario '{}' activated", scenario.getName());
                 scenario.getActions().forEach((sensorId, action) -> {
                     DeviceActionRequest request = DeviceActionRequestMapper.map(scenario, hubId, sensorId, action);
                     hubRouterClient.sendAction(request);
@@ -72,10 +72,10 @@ public class ScenarioEvaluationService {
         Integer actual = extractValueFromSensor(condition, state);
         Integer expected = condition.getValueInt();
 
-        log.info("🔍 Проверка условия: actual = {}, expected = {}, operation = {}", actual, expected, condition.getOperation());
+        log.info("Check condition: actual = {}, expected = {}, operation = {}", actual, expected, condition.getOperation());
 
         if (actual == null || expected == null) {
-            log.warn("⚠️ Не удалось выполнить сравнение: actual или expected = null");
+            log.warn("Can't compare: actual или expected = null");
             return false;
         }
 
@@ -84,7 +84,7 @@ public class ScenarioEvaluationService {
             case "GREATER_THAN" -> actual > expected;
             case "LOWER_THAN" -> actual < expected;
             default -> {
-                log.warn("⚠️ Неизвестная операция сравнения: {}", condition.getOperation());
+                log.warn("Unknown operation: {}", condition.getOperation());
                 yield false;
             }
         };
@@ -108,12 +108,12 @@ public class ScenarioEvaluationService {
                     case HUMIDITY -> sensor.getHumidity();
                     case CO2LEVEL -> sensor.getCo2Level();
                     default -> {
-                        log.warn("⚠️ Неизвестный тип условия для ClimateSensorAvro: {}", condition.getType());
+                        log.warn("Unknown condition type for ClimateSensorAvro: {}", condition.getType());
                         yield null;
                     }
                 };
             default:
-                log.warn("⚠️ Неизвестный тип сенсора: {}", data.getClass().getSimpleName());
+                log.warn("Unknown sensor type: {}", data.getClass().getSimpleName());
                 return null;
         }
     }

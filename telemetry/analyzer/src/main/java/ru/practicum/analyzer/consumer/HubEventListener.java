@@ -2,57 +2,26 @@ package ru.practicum.analyzer.consumer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.*;
-import org.apache.kafka.common.TopicPartition;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
-import ru.yandex.practicum.kafka.telemetry.event.DeviceAddedEventAvro;
-import ru.yandex.practicum.kafka.telemetry.event.DeviceRemovedEventAvro;
-import ru.yandex.practicum.kafka.telemetry.event.ScenarioAddedEventAvro;
-import ru.yandex.practicum.kafka.telemetry.event.ScenarioRemovedEventAvro;
-import ru.practicum.analyzer.model.Action;
-import ru.practicum.analyzer.model.Condition;
-import ru.practicum.analyzer.model.ConditionType;
-import ru.practicum.analyzer.model.Sensor;
-import ru.practicum.analyzer.model.Scenario;
-import ru.practicum.analyzer.repository.SensorRepository;
+import ru.practicum.analyzer.model.*;
 import ru.practicum.analyzer.repository.ScenarioRepository;
-
-import java.time.Duration;
-import java.util.Collections;
-import java.util.Map;
-import java.util.HashMap;
+import ru.practicum.analyzer.repository.SensorRepository;
+import ru.yandex.practicum.kafka.telemetry.event.*;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class HubEventProcessor implements Runnable {
-
-    private final KafkaConsumer<String, HubEventAvro> consumer;
+public class HubEventListener {
     private final SensorRepository sensorRepository;
     private final ScenarioRepository scenarioRepository;
 
-    private final Map<TopicPartition, OffsetAndMetadata> offsets = new HashMap<>();
 
-    @Override
-    public void run() {
-        consumer.subscribe(Collections.singletonList("telemetry.hubs.v1"));
-        log.info("🟡 HubEventProcessor запущен, слушает telemetry.hubs.v1");
-
-        while (true) {
-            ConsumerRecords<String, HubEventAvro> records = consumer.poll(Duration.ofMillis(500));
-            for (ConsumerRecord<String, HubEventAvro> record : records) {
-                HubEventAvro event = record.value();
-                process(event);
-
-                TopicPartition partition = new TopicPartition(record.topic(), record.partition());
-                offsets.put(partition, new OffsetAndMetadata(record.offset() + 1));
-            }
-            consumer.commitSync(offsets);
-        }
-    }
-
-    private void process(HubEventAvro event) {
+    @KafkaListener(
+            topics = "#{@hubsTopics}",
+            containerFactory = "hubsKafkaListenerContainerFactory"
+    )
+    private void listen(HubEventAvro event) {
         String hubId = event.getHubId();
         Object payload = event.getPayload();
 
@@ -61,11 +30,11 @@ public class HubEventProcessor implements Runnable {
             sensor.setId(deviceAdded.getId());
             sensor.setHubId(hubId);
             sensorRepository.save(sensor);
-            log.info("➕ Добавлен сенсор {} в хаб {}", deviceAdded.getId(), hubId);
+            log.info("Sensor {} added in hub {}", deviceAdded.getId(), hubId);
 
         } else if (payload instanceof DeviceRemovedEventAvro deviceRemoved) {
             sensorRepository.deleteById(deviceRemoved.getId());
-            log.info("❌ Удалён сенсор {}", deviceRemoved.getId());
+            log.info("Sensor deleted {}", deviceRemoved.getId());
 
         } else if (payload instanceof ScenarioAddedEventAvro scenarioAdded) {
             Scenario scenario = new Scenario();
@@ -93,7 +62,7 @@ public class HubEventProcessor implements Runnable {
                 } else if (rawValue instanceof Boolean b) {
                     condition.setValueBool(b);
                 } else {
-                    log.warn("⚠️ Неизвестный тип value у condition: {}", rawValue != null ? rawValue.getClass().getSimpleName() : "null");
+                    log.warn("Unknown value type: {}", rawValue != null ? rawValue.getClass().getSimpleName() : "null");
                 }
 
                 scenario.getConditions().put(sensorId, condition);
@@ -121,18 +90,17 @@ public class HubEventProcessor implements Runnable {
 
             scenarioRepository.save(scenario);
 
-            log.info("✅ Добавлен сценарий '{}' с {} условиями и {} действиями",
+            log.info("Scenario added '{}', conditions: {}, actions: {}",
                     scenarioAdded.getName(), scenarioAdded.getConditions().size(), scenarioAdded.getActions().size());
-        }
-        else if (payload instanceof ScenarioRemovedEventAvro scenarioRemoved) {
+        } else if (payload instanceof ScenarioRemovedEventAvro scenarioRemoved) {
             scenarioRepository.findByHubIdAndName(hubId, scenarioRemoved.getName())
                     .ifPresentOrElse(
                             scenarioRepository::delete,
-                            () -> log.warn("⚠️ Сценарий '{}' не найден для удаления", scenarioRemoved.getName())
+                            () -> log.warn("Scenario for removing not found '{}'", scenarioRemoved.getName())
                     );
 
         } else {
-            log.warn("⚠️ Неизвестный тип события: {}", payload.getClass().getSimpleName());
+            log.warn("Unknown event type: {}", payload.getClass().getSimpleName());
         }
     }
 }

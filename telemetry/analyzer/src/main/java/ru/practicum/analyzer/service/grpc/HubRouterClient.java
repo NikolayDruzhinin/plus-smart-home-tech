@@ -17,9 +17,9 @@ public class HubRouterClient {
     public void sendAction(DeviceActionRequest request) {
         try {
             stub.handleDeviceAction(request);
-            log.info("📡 Команда отправлена: {}", request);
+            log.info("Action sent: {}", request);
         } catch (StatusRuntimeException e) {
-            log.error("❌ Ошибка отправки команды: {}", e.getMessage(), e);
+            log.error("Error sending action: {}", e.getMessage(), e);
         }
     }
 }
