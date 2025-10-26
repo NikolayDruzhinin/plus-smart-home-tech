@@ -3,6 +3,7 @@ package ru.practicum.analyzer.service.grpc;
 import io.grpc.StatusRuntimeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceActionRequest;
 import ru.yandex.practicum.grpc.telemetry.hubrouter.HubRouterControllerGrpc;
@@ -12,6 +13,7 @@ import ru.yandex.practicum.grpc.telemetry.hubrouter.HubRouterControllerGrpc;
 @Slf4j
 public class HubRouterClient {
 
+    @GrpcClient("hub-router")
     private final HubRouterControllerGrpc.HubRouterControllerBlockingStub stub;
 
     public void sendAction(DeviceActionRequest request) {
