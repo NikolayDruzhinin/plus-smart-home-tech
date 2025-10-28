@@ -13,10 +13,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 @Component
-public class GeneralAvroSerializer<T extends SpecificRecordBase> implements Serializer<T> {
+public class GeneralAvroSerializer implements Serializer<SpecificRecordBase> {
     private static final EncoderFactory ENCODER_FACTORY = EncoderFactory.get();
 
-    public byte[] serialize(String topic, T data) {
+    public byte[] serialize(String topic, SpecificRecordBase data) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             if (data == null) return null;
             BinaryEncoder binaryEncoder = ENCODER_FACTORY.binaryEncoder(outputStream, null);

@@ -59,15 +59,11 @@ public class Mapper {
     }
 
     public static Integer getConditionValue(Object conditionValue) {
-        if (conditionValue == null) {
-            return null;
-        }
-        if (conditionValue instanceof Boolean) {
-            return ((Boolean) conditionValue ? 1 : 0);
-        }
-        if (conditionValue instanceof Integer) {
-            return (Integer) conditionValue;
-        }
-        throw new ClassCastException("Ошибка преобразования значения");
+        return switch (conditionValue) {
+            case null -> null;
+            case Boolean b -> b ? 1 : 0;
+            case Integer i -> i;
+            default -> throw new ClassCastException("Ошибка преобразования значения");
+        };
     }
 }
