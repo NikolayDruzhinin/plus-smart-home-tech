@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import ru.practicum.kafka.serializer.GeneralAvroSerializer;
 import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
+import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -32,6 +33,9 @@ public class EventPublisher {
         } else if (recordBase.getSchema().equals(SensorEventAvro.getClassSchema())) {
             topic = properties.topics().sensors();
             eventType = "sensor-event";
+        } else if (recordBase.getSchema().equals(SensorsSnapshotAvro.getClassSchema())) {
+            topic = properties.topics().snapshots();
+            eventType = "snapshot-event";
         } else {
             throw new RuntimeException("Unsupported schema " + recordBase.getSchema().toString());
         }

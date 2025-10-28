@@ -6,13 +6,14 @@ import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.common.errors.SerializationException;
+import org.apache.kafka.common.serialization.Serializer;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 @Component
-public class GeneralAvroSerializer {
+public class GeneralAvroSerializer implements Serializer<SpecificRecordBase> {
     private static final EncoderFactory ENCODER_FACTORY = EncoderFactory.get();
 
     public byte[] serialize(String topic, SpecificRecordBase data) {

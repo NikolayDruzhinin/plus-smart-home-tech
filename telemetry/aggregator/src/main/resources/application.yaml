@@ -1,0 +1,24 @@
+app:
+  kafka:
+    topics:
+      hubs: telemetry.hubs.v1
+      sensors: telemetry.sensors.v1
+      snapshots: telemetry.snapshots.v1
+
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+      properties:
+        linger-ms: 0
+    consumer:
+      group-id: aggregator-group
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      enable-auto-commit: false
+      properties:
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: ru.practicum.kafka.deserializer.SensorEventDeserializer
+        poll-timeout: 100ms
