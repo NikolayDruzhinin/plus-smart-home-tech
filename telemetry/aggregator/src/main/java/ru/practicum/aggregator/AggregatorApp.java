@@ -2,10 +2,9 @@ package ru.practicum.aggregator;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import ru.practicum.aggregator.configuration.AppKafkaProperties;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
-@EnableConfigurationProperties(AppKafkaProperties.class)
+@ConfigurationPropertiesScan
 @SpringBootApplication(scanBasePackages = {
         "ru.practicum.kafka.serializer",
         "ru.practicum.aggregator"
