@@ -1,31 +1,45 @@
 package ru.yandex.practicum.model;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
-
-import java.util.List;
+import ru.yandex.practicum.kafka.telemetry.event.ConditionOperationAvro;
+import ru.yandex.practicum.kafka.telemetry.event.ConditionTypeAvro;
 
 @Entity
 @Table(name = "conditions")
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Condition {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     Long id;
-    @ManyToOne
-    @JoinColumn(name = "sensor_id")
-    Sensor sensor;
+
+    @Column(name = "type")
     @Enumerated(EnumType.STRING)
-    ConditionType type;
+    ConditionTypeAvro type;
+
+    @Column(name = "operation")
     @Enumerated(EnumType.STRING)
-    ConditionOperation operation;
+    ConditionOperationAvro operation;
+
+    @Column(name = "value")
     Integer value;
-    @ManyToMany(mappedBy = "conditions")
-    List<Scenario> scenarios;
 }
