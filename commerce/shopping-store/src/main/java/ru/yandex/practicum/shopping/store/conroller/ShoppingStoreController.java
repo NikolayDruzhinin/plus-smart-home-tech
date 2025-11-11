@@ -31,9 +31,9 @@ public class ShoppingStoreController implements StoreFeignClient {
     private final StoreService storeService;
 
     @GetMapping
-    public List<ProductDto> getAllProducts(@RequestParam ProductCategory category, Pageable pageable) {
+    public ProductPageDto getAllProducts(@RequestParam ProductCategory category, Pageable pageable) {
         log.info("GET /api/v1/shopping-store, category = {}, pageable = {}", category, pageable);
-        return storeService.getAllProducts(category, pageable).getContent();
+        return storeService.getAllProducts(category, pageable);
     }
 
     @PutMapping

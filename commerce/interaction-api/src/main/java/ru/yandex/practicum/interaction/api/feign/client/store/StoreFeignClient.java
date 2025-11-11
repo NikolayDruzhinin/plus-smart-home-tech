@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.yandex.practicum.interaction.api.dto.store.ProductDto;
+import ru.yandex.practicum.interaction.api.dto.store.ProductPageDto;
 import ru.yandex.practicum.interaction.api.enums.ProductCategory;
 import ru.yandex.practicum.interaction.api.enums.QuantityState;
 
@@ -20,7 +21,7 @@ import java.util.UUID;
 @FeignClient(name = "shopping-store", path = "/api/v1/shopping-store")
 public interface StoreFeignClient {
     @GetMapping
-    List<ProductDto> getAllProducts(@RequestParam ProductCategory category, Pageable pageable) throws FeignException;
+    ProductPageDto getAllProducts(@RequestParam ProductCategory category, Pageable pageable) throws FeignException;
 
     @PutMapping
     ProductDto createProduct(@Valid @RequestBody ProductDto productDto) throws FeignException;
