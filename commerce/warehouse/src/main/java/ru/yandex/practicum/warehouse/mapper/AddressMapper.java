@@ -8,6 +8,4 @@ import ru.yandex.practicum.warehouse.model.Address;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface AddressMapper {
     AddressDto mapToAddressDto(Address address);
-
-    Address mapToAddress(AddressDto dto);
 }

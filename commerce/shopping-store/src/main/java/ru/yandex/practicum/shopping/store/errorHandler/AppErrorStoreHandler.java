@@ -17,28 +17,24 @@ public class AppErrorStoreHandler {
     @ExceptionHandler(ProductNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public AppError handleProductNotFoundException(ProductNotFoundException exp) {
-        log.warn(exp.getMessage(), exp);
-        return new AppError("ОШИБКА: ПРОДУКТ НЕ НАЙДЕН " + exp.getMessage());
+        return new AppError("Product not found error: " + exp.getMessage(), exp.getCause());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public AppError handleValidationException(MethodArgumentNotValidException exp) {
-        log.error("ОШИБКА VALIDATION-STORE", exp);
-        return new AppError("VALIDATION EXCEPTION" + exp.getMessage());
+        return new AppError("Validation error: " + exp.getMessage(), exp.getCause());
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public AppError handleConstraintViolations(ConstraintViolationException exp) {
-        log.error("ОШИБКА CONSTRAINT-STORE", exp);
-        return new AppError("ОШИБКА ОГРАНИЧЕНИЙ CONSTRAINT " + exp.getMessage());
+        return new AppError("Constraint violation: " + exp.getMessage(), exp.getCause());
     }
 
     @ExceptionHandler(Throwable.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public AppError handleThrowable(Throwable exp) {
-        log.error("ОШИБКА-STORE", exp);
-        return new AppError("INTERNAL SERVER ERROR " + exp.getMessage());
+        return new AppError("Internal server error: " + exp.getMessage(), exp.getCause());
     }
 }

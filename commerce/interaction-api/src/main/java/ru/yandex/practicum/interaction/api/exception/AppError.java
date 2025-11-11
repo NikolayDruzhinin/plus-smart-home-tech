@@ -9,4 +9,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class AppError {
     private String message;
+
+    public AppError(String message, Throwable cause) {
+    }
 }

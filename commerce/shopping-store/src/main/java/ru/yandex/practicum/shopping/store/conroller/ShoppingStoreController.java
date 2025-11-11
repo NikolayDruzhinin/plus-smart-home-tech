@@ -17,46 +17,50 @@ import ru.yandex.practicum.interaction.api.dto.store.ProductPageDto;
 import ru.yandex.practicum.interaction.api.dto.store.SetProductQuantityStateRequest;
 import ru.yandex.practicum.interaction.api.enums.ProductCategory;
 import ru.yandex.practicum.interaction.api.enums.QuantityState;
+import ru.yandex.practicum.interaction.api.feign.client.store.StoreFeignClient;
 import ru.yandex.practicum.shopping.store.service.StoreService;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/shopping-store")
-public class ShoppingStoreController {
+public class ShoppingStoreController implements StoreFeignClient {
     private final StoreService storeService;
 
     @GetMapping
-    public ProductPageDto getAllProducts(@RequestParam ProductCategory category, Pageable pageable) {
-        log.info("Получен GET /api/v1/shopping-store запрос c категорией = {} и pageable = {}", category, pageable);
-        return storeService.getAllProducts(category, pageable);
+    public List<ProductDto> getAllProducts(@RequestParam ProductCategory category, Pageable pageable) {
+        log.info("GET /api/v1/shopping-store, category = {}, pageable = {}", category, pageable);
+        return storeService.getAllProducts(category, pageable).getContent();
     }
 
     @PutMapping
     public ProductDto createProduct(@Valid @RequestBody ProductDto productDto) {
-        log.info("Получен PUT /api/v1/shopping-store запрос на добавление товара c productName = {}",
+        log.info("PUT /api/v1/shopping-store, productName = {}",
                 productDto.getProductName());
         return storeService.createProduct(productDto);
     }
 
     @PostMapping
     public ProductDto updateProduct(@Valid @RequestBody ProductDto productDto) {
-        log.info("Получен PUT /api/v1/shopping-store запрос на обновление товара c productName = {}",
+        log.info("POST /api/v1/shopping-store, productName = {}",
                 productDto.getProductName());
         return storeService.updateProduct(productDto);
     }
 
     @PostMapping("/removeProductFromStore")
     public Boolean removeProductById(@RequestBody UUID productId) {
-        log.info("Получен POST /api/v1/shopping-store запрос на деактивацию товара с ID = {}", productId);
+        log.info("POST /api/v1/shopping-store/removeProductFromStore, ID = {}", productId);
         return storeService.removeProductById(productId);
     }
 
     @PostMapping("/quantityState")
     public Boolean setProductQuantityState(@RequestParam UUID productId,
                                            @RequestParam QuantityState quantityState) {
+        log.info("POST /api/v1/shopping-store/quantityState, ID = {}, quantityState = {}",
+                productId, quantityState);
         SetProductQuantityStateRequest request = SetProductQuantityStateRequest.builder()
                 .productId(productId)
                 .quantityState(quantityState)
@@ -67,7 +71,7 @@ public class ShoppingStoreController {
 
     @GetMapping("/{productId}")
     public ProductDto getProductById(@PathVariable UUID productId) {
-        log.info("Получен GET /api/v1/shopping-store запрос на получение информации о товаре с ID = {}", productId);
+        log.info("GET /api/v1/shopping-store/{}", productId);
         return storeService.getProductById(productId);
     }
 }

@@ -21,48 +21,42 @@ public class AppErrorCartHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public AppError handleNoProductsInShoppingCart(NoProductsInShoppingCartException exp) {
         log.warn(exp.getMessage(), exp);
-        return new AppError("ОШИБКА: НЕТ ПРОДУКТОВ В КОРЗИНЕ " + exp.getMessage());
+        return new AppError("Products not found in cart " + exp.getMessage());
     }
 
     @ExceptionHandler(NotAuthorizedUserException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public AppError handleNotAuthorizedUser(NotAuthorizedUserException exp) {
-        log.warn(exp.getMessage(), exp);
-        return new AppError("ОШИБКА: ПОЛЬЗОВАТЕЛЬ НЕ АВТОРИЗОВАН " + exp.getMessage());
+        return new AppError("User not authorized: " + exp.getMessage());
     }
 
     @ExceptionHandler(CartNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public AppError handleCartNotFound(CartNotFoundException exp) {
-        log.warn(exp.getMessage(), exp);
-        return new AppError("ОШИБКА: КОРЗИНА НЕ НАЙДЕНА " + exp.getMessage());
+        return new AppError("Cart not found: " + exp.getMessage());
     }
 
     @ExceptionHandler(ShoppingCartDeactivateException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public AppError handleShoppingCartDeactivate(ShoppingCartDeactivateException exp) {
-        log.warn(exp.getMessage(), exp);
-        return new AppError("ОШИБКА: КОРЗИНА ДЕАКТИВИРОВАННА " + exp.getMessage());
+        return new AppError("Cart was deactivated: " + exp.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public AppError handleValidationException(MethodArgumentNotValidException exp) {
-        log.error("ОШИБКА VALIDATION-CART", exp);
-        return new AppError("VALIDATION EXCEPTION" + exp.getMessage());
+        return new AppError("Validation error" + exp.getMessage());
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public AppError handleConstraintViolations(ConstraintViolationException exp) {
-        log.error("ОШИБКА CONSTRAINT-CART", exp);
-        return new AppError("ОШИБКА ОГРАНИЧЕНИЙ CONSTRAINT " + exp.getMessage());
+        return new AppError("Constraint violation: " + exp.getMessage());
     }
 
     @ExceptionHandler(Throwable.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public AppError handleThrowable(Throwable exp) {
-        log.error("ОШИБКА-CART", exp);
-        return new AppError("INTERNAL SERVER ERROR " + exp.getMessage());
+        return new AppError("Internal server error: " + exp.getMessage());
     }
 }

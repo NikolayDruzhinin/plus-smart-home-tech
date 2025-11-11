@@ -1,0 +1,29 @@
+spring:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+  sql:
+    init:
+      mode: always
+  output:
+    ansi:
+      enabled: ALWAYS
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:6435/smart-home-commerce-warehouse
+    username: username
+    password: password
+
+logging:
+  level:
+    "org.springframework.orm.jpa": INFO
+    "org.springframework.transaction": INFO
+    "org.springframework.transaction.interceptor": INFO
+    "org.springframework.orm.jpa.JpaTransactionManager": INFO
+    "org.hibernate.SQL": INFO
+    "org.hibernate.orm.jdbc.bind": INFO
+
+server:
+  port: 0

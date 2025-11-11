@@ -52,8 +52,8 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Transactional
     public void newProduct(NewProductInWarehouseRequest newRequest) {
         if (warehouseRepository.existsById(newRequest.getProductId())) {
-            throw new SpecifiedProductAlreadyInWarehouseException("Товар с ID = "
-                    + newRequest.getProductId() + "уже зарегистрирован.");
+            throw new SpecifiedProductAlreadyInWarehouseException("Product ID = "
+                    + newRequest.getProductId() + "already exists.");
         }
 
         WarehouseProduct product = warehouseProductMapper.mapToWarProduct(newRequest);
@@ -111,11 +111,11 @@ public class WarehouseServiceImpl implements WarehouseService {
         }
 
         if (!productsNotFound.isEmpty()) {
-            throw new NoSpecifiedProductInWarehouseException("Нет информации о товарах на складе ID: " + productsNotFound);
+            throw new NoSpecifiedProductInWarehouseException("There is no products with ID: " + productsNotFound);
         }
 
         if (!productsNotEnough.isEmpty()) {
-            throw new ProductInShoppingCartLowQuantityInWarehouse("Недостаточно товаров на складе: " + productsNotEnough);
+            throw new ProductInShoppingCartLowQuantityInWarehouse("Not enough products " + productsNotEnough);
         }
 
         return result;
@@ -126,14 +126,15 @@ public class WarehouseServiceImpl implements WarehouseService {
     public void addQuantityProduct(AddProductToWarehouseRequest addRequest) {
         WarehouseProduct product = warehouseRepository.findById(addRequest.getProductId())
                 .orElseThrow(() -> new NoSpecifiedProductInWarehouseException
-                        (String.format("Товара с ID = %s нeт на складе", addRequest.getProductId())));
+                        (String.format("There is no product with ID %s", addRequest.getProductId())));
         product.setQuantity(product.getQuantity() + addRequest.getQuantity());
     }
 
     @Override
     public AddressDto getAddress() {
         Address address = addressRepository.findById(idAddress)
-                .orElseThrow(() -> new IllegalStateException("Адрес в БД не найден, ID = " + idAddress));
+                .orElseThrow(() ->
+                        new IllegalStateException(String.format("Address ID %s not found", idAddress)));
         return addressMapper.mapToAddressDto(address);
     }
 }

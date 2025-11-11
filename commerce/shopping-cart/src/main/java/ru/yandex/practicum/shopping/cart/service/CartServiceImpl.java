@@ -51,16 +51,15 @@ public class CartServiceImpl implements CartService {
 
     private void validateCartStatus(ShoppingCart cart) {
         if (cart == null) {
-            throw new NotFoundException("Корзина не найдена");
+            throw new NotFoundException("cart is null");
         }
 
         if (cart.getStatus() == null) {
-            throw new IllegalStateException("Статус корзины не определен");
+            throw new IllegalStateException("cart status is null");
         }
 
         if (cart.getStatus().equals(ShoppingCartStatus.DEACTIVATE)) {
-            throw new ShoppingCartDeactivateException(("Корзина пользователя деактивирована")
-            );
+            throw new ShoppingCartDeactivateException("Cart is deactivated");
         }
     }
 
@@ -79,7 +78,7 @@ public class CartServiceImpl implements CartService {
         int countProductToCheck = productsIds.size();
 
         if (countProductToCheck > countProductInCart) {
-            throw new NoProductsInShoppingCartException("Количество проверяемых товаров больше чем товаров в корзине");
+            throw new NoProductsInShoppingCartException("Products count to check exceeds product count in the cart");
         }
 
         List<UUID> notFoundIds = new ArrayList<>();
@@ -91,7 +90,7 @@ public class CartServiceImpl implements CartService {
         });
 
         if (!notFoundIds.isEmpty()) {
-            throw new NoProductsInShoppingCartException("Обнаружены товары, которых нет в корзине.");
+            throw new NoProductsInShoppingCartException("Product cart is empty");
         }
     }
 
@@ -110,7 +109,7 @@ public class CartServiceImpl implements CartService {
         checkUsernameForEmpty(username);
 
         if (products == null || products.isEmpty()) {
-            throw new BadRequestException("Список продуктов не может быть пустым");
+            throw new BadRequestException("products can not be null");
         }
 
         ShoppingCart cart = getOrCreateCart(username);
@@ -149,11 +148,11 @@ public class CartServiceImpl implements CartService {
         checkUsernameForEmpty(username);
 
         if (quantityRequest == null) {
-            throw new BadRequestException("Запрос на изменение количества не может быть пустым");
+            throw new BadRequestException("Empty request");
         }
 
         if (quantityRequest.getProductId() == null || quantityRequest.getNewQuantity() == null) {
-            throw new BadRequestException("productId и newQuantity должны быть заполнены");
+            throw new BadRequestException("productId or newQuantity can not be null");
         }
 
         ShoppingCart cart = getOrCreateCart(username);
