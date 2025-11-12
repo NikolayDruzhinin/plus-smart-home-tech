@@ -23,7 +23,7 @@ import java.util.UUID;
 @FeignClient(name = "shopping-cart", path = "/api/v1/shopping-cart")
 public interface CartFeignClient {
     @GetMapping
-    ProductPageDto getShoppingCart(@RequestParam String userName) throws FeignException;
+    ShoppingCartDto getShoppingCart(@RequestParam String userName) throws FeignException;
 
     @PutMapping
     ShoppingCartDto addProductInCart(@RequestParam String userName,
