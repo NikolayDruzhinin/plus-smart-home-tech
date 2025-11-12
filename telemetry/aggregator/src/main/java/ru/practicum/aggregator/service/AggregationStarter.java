@@ -17,7 +17,7 @@ public class AggregationStarter {
     private final SnapshotService snapshotService;
     private final EventPublisher eventPublisher;
 
-    @KafkaListener(topics = "${app.kafka.topics.sensors}", groupId = "${spring.kafka.consumer.group-id}")
+    @KafkaListener(topics = "${aggregator.kafka.topics.sensors}", groupId = "${spring.kafka.consumer.group-id}")
     public void listen(SensorEventAvro event) {
         log.info("Listen event {}", event);
         snapshotService.updateState(event)
