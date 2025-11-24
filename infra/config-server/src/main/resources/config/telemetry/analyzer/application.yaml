@@ -21,9 +21,9 @@ analyzer:
 spring:
   datasource:
     driverClassName: org.postgresql.Driver
-    username: username
+    url: jdbc:postgresql://localhost:5432/smart-home-telemetry-analyzer
+    username: analyzer_user
     password: password
-    url: jdbc:postgresql://localhost:6431/smart-home-telemetry-analyzer
   jpa:
     hibernate:
       ddl-auto: none
