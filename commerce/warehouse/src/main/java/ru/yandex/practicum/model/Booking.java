@@ -1,8 +1,10 @@
 package ru.yandex.practicum.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Map;
 import java.util.UUID;
@@ -12,21 +14,22 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder(toBuilder = true)
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
-@NoArgsConstructor
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "booking_id")
-    UUID bookingId;
+    private final UUID bookingId;
+
     @Column(name = "order_id")
-    UUID orderId;
+    private final UUID orderId;
+
     @Column(name = "delivery_id")
-    UUID deliveryId;
+    private UUID deliveryId;
+
     @ElementCollection
-    @CollectionTable(name="booking_products", joinColumns = @JoinColumn(name = "booking_id"))
+    @CollectionTable(name = "booking_products", joinColumns = @JoinColumn(name = "booking_id"))
     @MapKeyColumn(name = "product_id")
     @Column(name = "quantity")
-    Map<UUID, Long> products;
+    private final Map<UUID, Long> products;
 }

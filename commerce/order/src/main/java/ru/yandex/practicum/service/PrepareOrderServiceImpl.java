@@ -20,7 +20,6 @@ import ru.yandex.practicum.warehouse.client.WarehouseClient;
 import ru.yandex.practicum.warehouse.dto.AddressDto;
 import ru.yandex.practicum.warehouse.dto.AssemblyRequest;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -64,12 +63,12 @@ public class PrepareOrderServiceImpl implements PrepareOrderService {
     @Override
     public OrderDto payOrder(UUID orderId) {
         Order order = getOrderById(orderId);
-        BigDecimal productCost = paymentClient.getProductCost(orderMapper.map(order));
-        BigDecimal deliveryCost = deliveryClient.calculateDeliveryCost(orderMapper.map(order));
+        double productCost = paymentClient.getProductCost(orderMapper.map(order));
+        double deliveryCost = deliveryClient.calculateDeliveryCost(orderMapper.map(order));
         order.setDeliveryPrice(deliveryCost);
         order.setProductPrice(productCost);
         log.info("order after setting productPrice: {}", order);
-        BigDecimal totalCost = paymentClient.getTotalCost(orderMapper.map(order));
+        double totalCost = paymentClient.getTotalCost(orderMapper.map(order));
         order.setTotalPrice(totalCost);
         PaymentDto paymentDto = paymentClient.createPayment(orderMapper.map(order));
         order.setPaymentId(paymentDto.getPaymentId());
@@ -107,7 +106,7 @@ public class PrepareOrderServiceImpl implements PrepareOrderService {
     @Override
     public OrderDto calculateTotalPrice(UUID orderId) {
         Order order = getOrderById(orderId);
-        BigDecimal totalCost = paymentClient.getTotalCost(orderMapper.map(order));
+        double totalCost = paymentClient.getTotalCost(orderMapper.map(order));
 
         return orderMapper.map(orderService.setTotalPrice(orderId, totalCost));
     }
@@ -115,7 +114,7 @@ public class PrepareOrderServiceImpl implements PrepareOrderService {
     @Override
     public OrderDto calculateDeliveryPrice(UUID orderId) {
         Order order = getOrderById(orderId);
-        BigDecimal deliveryCost = deliveryClient.calculateDeliveryCost(orderMapper.map(order));
+        double deliveryCost = deliveryClient.calculateDeliveryCost(orderMapper.map(order));
 
         return orderMapper.map(orderService.setDeliveryPrice(orderId, deliveryCost));
     }
@@ -139,10 +138,7 @@ public class PrepareOrderServiceImpl implements PrepareOrderService {
 
     private AssemblyRequest getNewAssemblyProductsForOrderRequest(UUID orderId) {
         Order order = getOrderById(orderId);
-        return AssemblyRequest.builder()
-                .orderId(orderId)
-                .products(order.getProducts())
-                .build();
+        return new AssemblyRequest(orderId, order.getProducts());
     }
 
     private Order getOrderById(UUID orderId) {

@@ -15,13 +15,13 @@ import ru.yandex.practicum.payment.dto.PaymentDto;
 import ru.yandex.practicum.repository.PaymentRepository;
 import ru.yandex.practicum.shoppingStore.client.ShoppingStoreClient;
 import ru.yandex.practicum.shoppingStore.dto.ProductDto;
-import ru.yandex.practicum.utils.PaymentUtil;
 
-import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static ru.yandex.practicum.constants.PaymentConstants.BASE_VAT_RATE;
 
 @Slf4j
 @Service
@@ -41,7 +41,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public BigDecimal getTotalCost(OrderDto order) {
+    public Double getTotalCost(OrderDto order) {
         return calcTotalCost(order);
     }
 
@@ -53,7 +53,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public BigDecimal getProductCost(OrderDto order) {
+    public Double getProductCost(OrderDto order) {
         return calcProductsCost(order);
     }
 
@@ -77,7 +77,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private Payment getNewPayment(OrderDto order) {
-        BigDecimal fee = calcFeeCost(order.getProductPrice());
+        double fee = order.getProductPrice() * BASE_VAT_RATE;
         return Payment.builder()
                 .orderId(order.getOrderId())
                 .state(PaymentState.PENDING)
@@ -87,20 +87,20 @@ public class PaymentServiceImpl implements PaymentService {
                 .build();
     }
 
-    private BigDecimal calcTotalCost(OrderDto order) {
-        BigDecimal productCost = calcProductsCost(order);
-        BigDecimal deliveryCost = order.getDeliveryPrice();
+    private Double calcTotalCost(OrderDto order) {
+        double productCost = calcProductsCost(order);
+        double deliveryCost = order.getDeliveryPrice();
 
-        return productCost.add(calcFeeCost(productCost)).add(deliveryCost);
+        return productCost + deliveryCost + productCost * BASE_VAT_RATE;
     }
 
-    private BigDecimal calcProductsCost(OrderDto order) {
+    private Double calcProductsCost(OrderDto order) {
         if (order == null || order.getProducts() == null) {
             throw new IllegalArgumentException("Order and products cannot be null");
         }
 
         if (order.getProducts().isEmpty()) {
-            return BigDecimal.ZERO;
+            return 0.0;
         }
 
         // Получаем продукты из хранилища
@@ -108,7 +108,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .stream()
                 .collect(Collectors.toMap(ProductDto::getProductId, Function.identity()));
 
-        BigDecimal totalCost = BigDecimal.ZERO;
+        double totalCost = 0;
 
         for (Map.Entry<UUID, Integer> orderProduct : order.getProducts().entrySet()) {
             UUID productId = orderProduct.getKey();
@@ -127,14 +127,10 @@ public class PaymentServiceImpl implements PaymentService {
                 );
             }
 
-            BigDecimal productCost = product.getPrice().multiply(BigDecimal.valueOf(quantity));
-            totalCost = totalCost.add(productCost);
+            double productCost = product.getPrice() * quantity;
+            totalCost += productCost;
         }
 
         return totalCost;
-    }
-
-    private BigDecimal calcFeeCost(BigDecimal cost) {
-        return cost.multiply(BigDecimal.valueOf(PaymentUtil.BASE_VAT_RATE));
     }
 }

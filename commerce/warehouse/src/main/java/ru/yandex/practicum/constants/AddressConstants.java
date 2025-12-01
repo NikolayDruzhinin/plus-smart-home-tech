@@ -1,9 +1,9 @@
-package ru.yandex.practicum.utils;
+package ru.yandex.practicum.constants;
 
 import java.security.SecureRandom;
 import java.util.Random;
 
-public final class AddressUtil {
+public final class AddressConstants {
     private static final String[] ADDRESSES =
             new String[] {"ADDRESS_1", "ADDRESS_2"};
 

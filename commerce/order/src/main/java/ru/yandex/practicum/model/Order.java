@@ -1,11 +1,13 @@
 package ru.yandex.practicum.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.order.enums.OrderStatus;
 
-import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
 
@@ -15,8 +17,6 @@ import java.util.UUID;
 @Setter
 @Builder(toBuilder = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@AllArgsConstructor
-@NoArgsConstructor
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -27,7 +27,7 @@ public class Order {
     @Column(name = "cart_id")
     UUID cartId;
     @ElementCollection
-    @CollectionTable(name="order_products", joinColumns = @JoinColumn(name = "order_id"))
+    @CollectionTable(name = "order_products", joinColumns = @JoinColumn(name = "order_id"))
     @MapKeyColumn(name = "product_id")
     @Column(name = "quantity")
     Map<UUID, Long> products;
@@ -44,9 +44,9 @@ public class Order {
     Double deliveryVolume;
     boolean fragile;
     @Column(name = "total_price")
-    BigDecimal totalPrice;
+    Double totalPrice;
     @Column(name = "delivery_price")
-    BigDecimal deliveryPrice;
+    Double deliveryPrice;
     @Column(name = "product_price")
-    BigDecimal productPrice;
+    Double productPrice;
 }

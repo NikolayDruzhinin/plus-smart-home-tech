@@ -36,14 +36,11 @@ public class ShoppingStoreServiceImpl implements ShoppingStoreService {
                 .map(productMapper::map)
                 .toList();
 
-        ProductsDto result = new ProductsDto();
-        result.setContent(list);
         List<SortInfo> sortInfoList = pageRequest.getSort().stream()
                 .map(order -> new SortInfo(order.getProperty(), order.getDirection().name()))
                 .collect(Collectors.toList());
-        result.setSort(sortInfoList);
 
-        return result;
+        return new ProductsDto(list, sortInfoList);
     }
 
     @Override

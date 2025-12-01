@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.shoppingCart.dto.BookedProductsDto;
 import ru.yandex.practicum.shoppingCart.dto.ChangeProductQuantityRequest;
 import ru.yandex.practicum.shoppingCart.dto.ShoppingCartDto;
-import ru.yandex.practicum.utils.ValidationUtil;
+import ru.yandex.practicum.constants.ValidationConstants;
 
 import java.util.List;
 import java.util.Map;
@@ -18,7 +18,7 @@ import java.util.UUID;
 @FeignClient(name = "shopping-cart")
 public interface ShoppingCartClient {
     String USERNAME_PARAM = "username";
-    String VALIDATION_MESSAGE = ValidationUtil.VALIDATION_USERNAME_MESSAGE;
+    String VALIDATION_MESSAGE = ValidationConstants.VALIDATION_USERNAME_MESSAGE;
     String REMOVE_PATH = "/remove";
     String CHANGE_QUANTITY_PATH = "/change-quantity";
     String BOOKING_PATH = "/booking";

@@ -2,34 +2,28 @@ package ru.yandex.practicum.order.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.FieldDefaults;
+import lombok.Builder;
+import lombok.Getter;
 import ru.yandex.practicum.order.enums.OrderStatus;
 
-import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
 
-@Data
-@FieldDefaults(level = AccessLevel.PRIVATE)
-@AllArgsConstructor
-@NoArgsConstructor
+@Builder
+@Getter
 public class OrderDto {
     @NotNull
-    UUID orderId;
-    UUID shoppingCartId;
+    private final UUID orderId;
+    private final UUID shoppingCartId;
     @NotEmpty
-    Map<UUID, Integer> products;
-    UUID paymentId;
-    UUID deliveryId;
-    OrderStatus state;
-    Double deliveryWeight;
-    Double deliveryVolume;
-    boolean fragile;
-    BigDecimal totalPrice;
-    BigDecimal deliveryPrice;
-    BigDecimal productPrice;
+    private final Map<UUID, Integer> products;
+    private final UUID paymentId;
+    private final UUID deliveryId;
+    private final OrderStatus state;
+    private final Double deliveryWeight;
+    private final Double deliveryVolume;
+    private final boolean fragile;
+    private final Double totalPrice;
+    private final Double deliveryPrice;
+    private final Double productPrice;
 }

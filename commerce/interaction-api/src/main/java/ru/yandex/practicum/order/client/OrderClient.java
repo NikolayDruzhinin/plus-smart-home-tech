@@ -6,10 +6,10 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.constants.ValidationConstants;
 import ru.yandex.practicum.order.dto.OrderCreateRequest;
 import ru.yandex.practicum.order.dto.OrderDto;
 import ru.yandex.practicum.order.dto.ProductReturnRequest;
-import ru.yandex.practicum.utils.ValidationUtil;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,7 +20,7 @@ public interface OrderClient {
     @GetMapping
     List<OrderDto> getClientOrders(
             @RequestParam(name = "username")
-            @NotBlank(message = ValidationUtil.VALIDATION_USERNAME_MESSAGE)
+            @NotBlank(message = ValidationConstants.VALIDATION_USERNAME_MESSAGE)
             String userName);
 
     @PutMapping

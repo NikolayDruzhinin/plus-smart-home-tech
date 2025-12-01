@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.yandex.practicum.exception.model.ErrorResponse;
+import ru.yandex.practicum.util.ErrorResponse;
 
 @RestControllerAdvice
 public class ErrorHandler {
@@ -17,13 +17,12 @@ public class ErrorHandler {
     public ErrorResponse handleNotAuthorizedUserException(Request request, NotAuthorizedException e) {
         return ErrorResponse.builder()
                 .status(HttpStatus.UNAUTHORIZED)
-                .error("Server error")
+                .path(request.getContextPath())
                 .message(e.getMessage())
-                .path(request.getRequestURI())
-                .details(ErrorResponse.ErrorDetails.builder()
-                        .exception(e.getClass().getName())
-                        .trace(ExceptionUtils.getStackTrace(e))
-                        .build())
+                .error(e.getClass().getName())
+                .details(new ErrorResponse
+                        .ErrorDetails(ExceptionUtils.getRootCause(e),
+                        ExceptionUtils.getStackTrace(e)))
                 .build();
 
     }
@@ -33,13 +32,12 @@ public class ErrorHandler {
     public ErrorResponse handleNotFoundException(Request request, NotFoundException e) {
         return ErrorResponse.builder()
                 .status(HttpStatus.NOT_FOUND)
-                .error("Server error")
+                .path(request.getContextPath())
+                .error(e.getClass().getName())
                 .message(e.getMessage())
-                .path(request.getRequestURI())
-                .details(ErrorResponse.ErrorDetails.builder()
-                        .exception(e.getClass().getName())
-                        .trace(ExceptionUtils.getStackTrace(e))
-                        .build())
+                .details(new ErrorResponse
+                        .ErrorDetails(ExceptionUtils.getRootCause(e),
+                        ExceptionUtils.getStackTrace(e)))
                 .build();
     }
 
@@ -49,13 +47,12 @@ public class ErrorHandler {
                                                                  NoProductsException e) {
         return ErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST)
-                .error("Server error")
+                .path(request.getContextPath())
+                .error(e.getClass().getName())
                 .message(e.getMessage())
-                .path(request.getRequestURI())
-                .details(ErrorResponse.ErrorDetails.builder()
-                        .exception(e.getClass().getName())
-                        .trace(ExceptionUtils.getStackTrace(e))
-                        .build())
+                .details(new ErrorResponse
+                        .ErrorDetails(ExceptionUtils.getRootCause(e),
+                        ExceptionUtils.getStackTrace(e)))
                 .build();
     }
 
@@ -65,13 +62,12 @@ public class ErrorHandler {
                                                             ConstraintViolationException e) {
         return ErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST)
-                .error("Server error")
+                .path(request.getContextPath())
+                .error(e.getClass().getName())
                 .message(e.getMessage())
-                .path(request.getRequestURI())
-                .details(ErrorResponse.ErrorDetails.builder()
-                        .exception(e.getClass().getName())
-                        .trace(ExceptionUtils.getStackTrace(e))
-                        .build())
+                .details(new ErrorResponse
+                        .ErrorDetails(ExceptionUtils.getRootCause(e),
+                        ExceptionUtils.getStackTrace(e)))
                 .build();
     }
 }

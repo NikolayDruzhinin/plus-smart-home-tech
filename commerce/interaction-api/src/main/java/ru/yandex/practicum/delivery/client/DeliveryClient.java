@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.delivery.dto.DeliveryDto;
 import ru.yandex.practicum.order.dto.OrderDto;
 
-
-import java.math.BigDecimal;
 import java.util.UUID;
 
 @Validated
@@ -31,5 +29,5 @@ public interface DeliveryClient {
     void failDelivery(@RequestBody @NotNull UUID orderId);
 
     @PostMapping("/cost")
-    BigDecimal calculateDeliveryCost(@RequestBody @Valid OrderDto orderDto);
+    Double calculateDeliveryCost(@RequestBody @Valid OrderDto orderDto);
 }

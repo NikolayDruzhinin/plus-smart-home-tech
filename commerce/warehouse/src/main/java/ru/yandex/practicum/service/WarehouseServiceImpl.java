@@ -15,7 +15,7 @@ import ru.yandex.practicum.repository.BookingRepository;
 import ru.yandex.practicum.repository.WarehouseRepository;
 import ru.yandex.practicum.shoppingCart.dto.BookedProductsDto;
 import ru.yandex.practicum.shoppingCart.dto.ShoppingCartDto;
-import ru.yandex.practicum.utils.AddressUtil;
+import ru.yandex.practicum.constants.AddressConstants;
 import ru.yandex.practicum.warehouse.dto.AddProductToWarehouseRequest;
 import ru.yandex.practicum.warehouse.dto.AddressDto;
 import ru.yandex.practicum.warehouse.dto.NewProductInWarehouseRequest;
@@ -87,7 +87,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public AddressDto getWarehouseAddress() {
-        String defValue = AddressUtil.getAddress();
+        String defValue = AddressConstants.getAddress();
         return new AddressDto(
                 defValue,
                 defValue,

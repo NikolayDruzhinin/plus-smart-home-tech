@@ -2,7 +2,6 @@ package ru.yandex.practicum.service;
 
 import ru.yandex.practicum.model.Order;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,9 +25,9 @@ public interface OrderService {
 
     Order completeOrder(UUID orderId);
 
-    Order setTotalPrice(UUID orderId, BigDecimal totalCost);
+    Order setTotalPrice(UUID orderId, Double totalCost);
 
-    Order setDeliveryPrice(UUID orderId, BigDecimal deliveryCost);
+    Order setDeliveryPrice(UUID orderId, Double deliveryCost);
 
     Order assemblyOrder(UUID orderId);
 

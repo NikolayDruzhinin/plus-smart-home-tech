@@ -1,10 +1,11 @@
 package ru.yandex.practicum.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -12,22 +13,25 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder(toBuilder = true)
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
-@NoArgsConstructor
 public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "payment_id")
-    UUID paymentId;
+    private final UUID paymentId;
+
     @Column(name = "order_id")
-    UUID orderId;
+    private final UUID orderId;
+
     @Enumerated(value = EnumType.STRING)
-    PaymentState state;
+    private PaymentState state;
+
     @Column(name = "total_cost")
-    BigDecimal totalPayment;
+    private final Double totalPayment;
+
     @Column(name = "delivery_cost")
-    BigDecimal deliveryTotal;
+    private final Double deliveryTotal;
+
     @Column(name = "fee_cost")
-    BigDecimal feeTotal;
+    private final Double feeTotal;
 }

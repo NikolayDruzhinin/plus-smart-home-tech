@@ -3,12 +3,13 @@ package ru.yandex.practicum.exception;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.connector.Request;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.yandex.practicum.exception.model.ErrorResponse;
+import ru.yandex.practicum.util.ErrorResponse;
 
 @Slf4j
 @RestControllerAdvice
@@ -16,49 +17,58 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFoundException(final NotFoundException e) {
-        log.error("Not found exception occurred: {}", e.getMessage(), e);
-
-        return new ErrorResponse(
-                HttpStatus.NOT_FOUND,
-                e.getMessage(),
-                "Resource not found"
-        );
+    public ErrorResponse handleNotFoundException(Request request, final NotFoundException e) {
+        return ErrorResponse.builder()
+                .status(HttpStatus.NOT_FOUND)
+                .path(request.getContextPath())
+                .error(e.getClass().getName())
+                .message(e.getMessage())
+                .details(new ErrorResponse
+                        .ErrorDetails(ExceptionUtils.getRootCause(e),
+                        ExceptionUtils.getStackTrace(e)))
+                .build();
     }
 
     @ExceptionHandler
-    public ResponseEntity<ErrorResponse> handleConstraintViolationException(final ConstraintViolationException e) throws NotAuthorizedUserException {
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleConstraintViolationException(
+            Request request, final ConstraintViolationException e) throws NotAuthorizedUserException {
         if (e.getConstraintViolations().stream()
                 .anyMatch(violation -> violation.getConstraintDescriptor()
                         .getAnnotation().annotationType().equals(NotBlank.class))) {
-            log.error("Unauthorized exception occurred: {}", e.getMessage(), e);
-            return new ResponseEntity<>(
-                    new ErrorResponse(
-                            HttpStatus.UNAUTHORIZED,
-                            e.getMessage(),
-                            "Unauthorized"
-                    ), HttpStatus.UNAUTHORIZED
-            );
+            return ErrorResponse.builder()
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .path(request.getContextPath())
+                    .error(e.getClass().getName())
+                    .message(e.getMessage())
+                    .details(new ErrorResponse
+                            .ErrorDetails(ExceptionUtils.getRootCause(e),
+                            ExceptionUtils.getStackTrace(e)))
+                    .build();
         }
 
-        log.error("Bad Request exception occurred: {}", e.getMessage(), e);
-        return new ResponseEntity<>(
-                new ErrorResponse(
-                        HttpStatus.BAD_REQUEST,
-                        e.getMessage(),
-                        "Bad Request"
-                        ), HttpStatus.BAD_REQUEST
-        );
+        return ErrorResponse.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .path(request.getContextPath())
+                .error(e.getClass().getName())
+                .message(e.getMessage())
+                .details(new ErrorResponse
+                        .ErrorDetails(ExceptionUtils.getRootCause(e),
+                        ExceptionUtils.getStackTrace(e)))
+                .build();
     }
 
     @ExceptionHandler(Throwable.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleThrowable(final Throwable e) {
-        log.error("Unexpected error occurred: {}", e.getMessage(), e);
-        return new ErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                e.getMessage(),
-                "Internal server error"
-        );
+    public ErrorResponse handleThrowable(Request request, final Throwable e) {
+        return ErrorResponse.builder()
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .path(request.getContextPath())
+                .error(e.getClass().getName())
+                .message(e.getMessage())
+                .details(new ErrorResponse
+                        .ErrorDetails(ExceptionUtils.getRootCause(e),
+                        ExceptionUtils.getStackTrace(e)))
+                .build();
     }
 }

@@ -1,8 +1,10 @@
 package ru.yandex.practicum.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import ru.yandex.practicum.shoppingStore.enums.ProductCategory;
 import ru.yandex.practicum.shoppingStore.enums.ProductState;
 import ru.yandex.practicum.shoppingStore.enums.QuantityState;
@@ -14,24 +16,27 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder(toBuilder = true)
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
-@NoArgsConstructor
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    UUID productId;
+    private final UUID productId;
+
     @Column(name = "name")
-    String productName;
-    String description;
-    String imageSrc;
+    private final String productName;
+    private final String description;
+    private final String imageSrc;
+
     @Enumerated(value = EnumType.STRING)
-    QuantityState quantityState;
+    private QuantityState quantityState;
+
     @Enumerated(value = EnumType.STRING)
-    ProductState productState;
-    Double rating;
+    private ProductState productState;
+    private final Double rating;
+
     @Enumerated(value = EnumType.STRING)
     @Column(name = "category")
-    ProductCategory productCategory;
-    Double price;
+    private final ProductCategory productCategory;
+
+    private final Double price;
 }

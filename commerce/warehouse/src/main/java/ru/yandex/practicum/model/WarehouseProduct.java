@@ -14,16 +14,16 @@ import java.util.UUID;
 @Setter
 @Builder(toBuilder = true)
 @AllArgsConstructor
-@NoArgsConstructor
 public class WarehouseProduct {
     @Id
     @Column(name = "product_id")
-    UUID productId;
-    boolean fragile;
-    Double width;
-    Double height;
-    Double depth;
-    Double weight;
+    private final UUID productId;
+    private final boolean fragile;
+    private final Double width;
+    private final Double height;
+    private final Double depth;
+    private final Double weight;
+
     @Builder.Default
-    long quantity = 0L;
+    private long quantity = 0L;
 }

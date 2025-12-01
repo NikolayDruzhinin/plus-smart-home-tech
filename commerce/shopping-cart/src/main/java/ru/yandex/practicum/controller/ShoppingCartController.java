@@ -12,11 +12,12 @@ import ru.yandex.practicum.shoppingCart.client.ShoppingCartClient;
 import ru.yandex.practicum.shoppingCart.dto.BookedProductsDto;
 import ru.yandex.practicum.shoppingCart.dto.ChangeProductQuantityRequest;
 import ru.yandex.practicum.shoppingCart.dto.ShoppingCartDto;
-import ru.yandex.practicum.utils.ValidationUtil;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import static ru.yandex.practicum.constants.ValidationConstants.VALIDATION_USERNAME_MESSAGE;
 
 @Validated
 @RestController
@@ -27,39 +28,39 @@ public class ShoppingCartController implements ShoppingCartClient {
 
     @Override
     public ShoppingCartDto getCart(
-            @NotBlank(message = ValidationUtil.VALIDATION_USERNAME_MESSAGE) String userName) {
+            @NotBlank(message = VALIDATION_USERNAME_MESSAGE) String userName) {
         return shoppingCartService.getCart(userName);
     }
 
     @Override
     public ShoppingCartDto addProducts(
-            @NotBlank(message = ValidationUtil.VALIDATION_USERNAME_MESSAGE) String userName,
+            @NotBlank(message = VALIDATION_USERNAME_MESSAGE) String userName,
             Map<UUID, @NotNull Long> products) {
         return shoppingCartService.addProducts(userName, products);
     }
 
     @Override
-    public void clearCart(@NotBlank(message = ValidationUtil.VALIDATION_USERNAME_MESSAGE) String userName) {
+    public void clearCart(@NotBlank(message = VALIDATION_USERNAME_MESSAGE) String userName) {
         shoppingCartService.clearCart(userName);
     }
 
     @Override
-    public ShoppingCartDto removeProducts(@NotBlank(message = ValidationUtil.VALIDATION_USERNAME_MESSAGE)
-                                                      String userName,
-                                                  List<UUID> products) {
+    public ShoppingCartDto removeProducts(@NotBlank(message = VALIDATION_USERNAME_MESSAGE)
+                                          String userName,
+                                          List<UUID> products) {
         return shoppingCartService.removeProducts(userName, products);
     }
 
     @Override
-    public ShoppingCartDto updateQuantity(@NotBlank(message = ValidationUtil.VALIDATION_USERNAME_MESSAGE)
-                                                     String userName,
-                                                 @Valid ChangeProductQuantityRequest request) {
+    public ShoppingCartDto updateQuantity(@NotBlank(message = VALIDATION_USERNAME_MESSAGE)
+                                          String userName,
+                                          @Valid ChangeProductQuantityRequest request) {
         return shoppingCartService.updateQuantity(userName, request);
     }
 
     @Override
     public BookedProductsDto bookProducts(
-            @NotBlank(message = ValidationUtil.VALIDATION_USERNAME_MESSAGE) String userName) {
+            @NotBlank(message = VALIDATION_USERNAME_MESSAGE) String userName) {
         return shoppingCartService.bookProducts(userName);
     }
 }

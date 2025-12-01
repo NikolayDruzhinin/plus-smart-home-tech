@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
@@ -15,17 +14,16 @@ import java.util.Collections;
 import java.util.List;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 public class Pageable {
     @Min(value = 0, message = "Page number must not be negative")
-    private int page;
+    private final Integer page;
 
     @Positive(message = "Page size must be positive")
-    private int size = 100;
+    private final Integer size = 100;
 
     @NotNull
-    private List<String> sort = Collections.emptyList();
+    private final List<String> sort = Collections.emptyList();
 
     public PageRequest toPageRequest() {
         Sort sortObj = parseSort();

@@ -1,24 +1,23 @@
 package ru.yandex.practicum.delivery.dto;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import lombok.Builder;
+import lombok.Getter;
 import ru.yandex.practicum.delivery.enums.DeliveryStatus;
 import ru.yandex.practicum.warehouse.dto.AddressDto;
 
 import java.util.UUID;
 
-@Data
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
+@Getter
 public class DeliveryDto {
-    UUID deliveryId;
+    private final UUID deliveryId;
     @NotNull
-    AddressDto senderAddress;
+    private final AddressDto senderAddress;
     @NotNull
-    AddressDto recipientAddress;
+    private final AddressDto recipientAddress;
     @NotNull
-    UUID orderId;
+    private final UUID orderId;
     @NotNull
-    DeliveryStatus deliveryStatus;
+    private final DeliveryStatus deliveryStatus;
 }

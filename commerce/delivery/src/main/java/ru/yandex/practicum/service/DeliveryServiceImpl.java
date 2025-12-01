@@ -11,16 +11,15 @@ import ru.yandex.practicum.exception.DeliveryNotFoundException;
 import ru.yandex.practicum.mapper.AddressMapper;
 import ru.yandex.practicum.mapper.DeliveryMapper;
 import ru.yandex.practicum.model.Address;
-import ru.yandex.practicum.model.Delivery;
 import ru.yandex.practicum.order.client.OrderClient;
 import ru.yandex.practicum.order.dto.OrderDto;
 import ru.yandex.practicum.repository.DeliveryRepository;
-import ru.yandex.practicum.utils.DeliveryUtil;
+import ru.yandex.practicum.constants.DeliveryConstants;
 import ru.yandex.practicum.warehouse.client.WarehouseClient;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.UUID;
+
+import static ru.yandex.practicum.constants.DeliveryConstants.*;
 
 @Slf4j
 @Service
@@ -39,15 +38,15 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Transactional
     public DeliveryDto createDelivery(DeliveryDto deliveryDto) {
         log.info("Creating delivery for order id = {}", deliveryDto.getOrderId());
-        Delivery delivery = buildDeliveryEntity(deliveryDto);
-        Delivery savedDelivery = deliveryRepository.save(delivery);
+        ru.yandex.practicum.model.Delivery delivery = buildDeliveryEntity(deliveryDto);
+        ru.yandex.practicum.model.Delivery savedDelivery = deliveryRepository.save(delivery);
         return deliveryMapper.toDto(savedDelivery);
     }
 
     @Override
     @Transactional
     public void completeDelivery(UUID orderId) {
-        Delivery delivery = getDeliveryByOrderId(orderId);
+        ru.yandex.practicum.model.Delivery delivery = getDeliveryByOrderId(orderId);
         delivery.setDeliveryStatus(DeliveryStatus.DELIVERED);
         deliveryRepository.save(delivery);
         orderClient.deliverOrder(orderId);
@@ -56,7 +55,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Override
     @Transactional
     public void confirmPickup(UUID orderId) {
-        Delivery delivery = getDeliveryByOrderId(orderId);
+        ru.yandex.practicum.model.Delivery delivery = getDeliveryByOrderId(orderId);
         delivery.setDeliveryStatus(DeliveryStatus.IN_PROGRESS);
         deliveryRepository.save(delivery);
 
@@ -67,93 +66,76 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Override
     @Transactional
     public void failDelivery(UUID orderId) {
-        Delivery delivery = getDeliveryByOrderId(orderId);
+        ru.yandex.practicum.model.Delivery delivery = getDeliveryByOrderId(orderId);
         delivery.setDeliveryStatus(DeliveryStatus.FAILED);
         deliveryRepository.save(delivery);
         orderClient.failDeliverOrder(orderId);
     }
 
     @Override
-    public BigDecimal calculateDeliveryCost(OrderDto orderDto) {
+    public Double calculateDeliveryCost(OrderDto orderDto) {
         if (orderDto == null) {
             throw new IllegalArgumentException("OrderDto cannot be null");
         }
 
-        Delivery delivery = getDeliveryByOrderId(orderDto.getOrderId());
-        if (delivery == null) {
-            throw new IllegalArgumentException("Delivery not found for orderId: " + orderDto.getOrderId());
-        }
-
+        ru.yandex.practicum.model.Delivery delivery = getDeliveryByOrderId(orderDto.getOrderId());
         log.info("delivery for calc cost: {}", delivery);
 
         // Инициализируем базовую стоимость доставки
-        BigDecimal cost = BigDecimal.valueOf(DeliveryUtil.BASE_DELIVERY_PRICE);
+        double cost = BASE_DELIVERY_PRICE;
 
         // Добавляем коэффициент от адреса отправителя
-        BigDecimal fromAddressCoef = getCoefByFromAddress(delivery.getSenderAddress());
-        cost = cost.add(BigDecimal.valueOf(DeliveryUtil.BASE_DELIVERY_PRICE).multiply(fromAddressCoef));
+        var fromAddressCoef = getCoefByFromAddress(delivery.getSenderAddress());
+        cost += BASE_DELIVERY_PRICE * fromAddressCoef;
 
         // Применяем коэффициент хрупкости
-        BigDecimal fragileCoef = getFragileCoefficient(orderDto.isFragile());
-        cost = cost.multiply(fragileCoef);
+        var fragileCoeff = orderDto.isFragile() ? DeliveryConstants.FRAGILE_COEF : 1.0;
+        cost *= fragileCoeff;
+
 
         // Добавляем стоимость за вес
-        BigDecimal weightCost = BigDecimal.valueOf(orderDto.getDeliveryWeight())
-                .multiply(BigDecimal.valueOf(WEIGHT_RATE));
-        cost = cost.add(weightCost);
+        var weightCost = orderDto.getDeliveryWeight() * WEIGHT_RATE;
+        cost += weightCost;
 
         // Добавляем стоимость за объем
-        BigDecimal volumeCost = BigDecimal.valueOf(orderDto.getDeliveryVolume())
-                .multiply(BigDecimal.valueOf(VOLUME_RATE));
-        cost = cost.add(volumeCost);
+        var volumeCost = orderDto.getDeliveryVolume() * VOLUME_RATE;
+        cost += volumeCost;
 
         // Применяем коэффициент расстояния между адресами
-        BigDecimal distanceCoef = getCoefByToAddress(delivery.getSenderAddress(), delivery.getRecipientAddress());
-        cost = cost.multiply(distanceCoef);
+        var distanceCoef = !delivery.getSenderAddress().getStreet()
+                .equals(delivery.getRecipientAddress().getStreet()) ? DIFF_STREET_ADDRESS_COEF : 1.0;
+        cost *= distanceCoef;
 
         // Округляем до 2 знаков (копеек)
-        return cost.setScale(2, RoundingMode.HALF_UP);
+        return Math.round(cost * 100.0) / 100.0;
     }
 
-    BigDecimal getCoefByFromAddress(Address address) {
+    Double getCoefByFromAddress(Address address) {
         String addressStr = address.toString();
         if (addressStr.contains("ADDRESS_1")) {
-            return BigDecimal.valueOf(DeliveryUtil.ADDRESS_1_ADDRESS_COEF);
+            return ADDRESS_1_ADDRESS_COEF;
         } else if (addressStr.contains("ADDRESS_2")) {
-            return BigDecimal.valueOf(DeliveryUtil.ADDRESS_2_ADDRESS_COEF);
+            return ADDRESS_2_ADDRESS_COEF;
         } else {
-            return BigDecimal.valueOf(DeliveryUtil.BASE_ADDRESS_COEF);
+            return BASE_ADDRESS_COEF;
         }
     }
 
-    BigDecimal getCoefByToAddress(Address from, Address to) {
-        if (!from.getStreet().equals(to.getStreet())) {
-            return BigDecimal.valueOf(DeliveryUtil.DIFF_STREET_ADDRESS_COEF);
-        }
-
-        return BigDecimal.valueOf(1.0);
-    }
-
-    BigDecimal getFragileCoefficient(boolean isFragile) {
-        double val = isFragile ? DeliveryUtil.FRAGILE_COEF : 1.0;
-        return BigDecimal.valueOf(val);
-    }
-
-    private Delivery getDeliveryByOrderId(UUID orderId) {
+    private ru.yandex.practicum.model.Delivery getDeliveryByOrderId(UUID orderId) {
         return deliveryRepository.findByOrderId(orderId).orElseThrow(
-                () -> new DeliveryNotFoundException("Не найдена доставка")
+                () -> new DeliveryNotFoundException("Delivery not found")
         );
     }
 
-    private DeliveryRequest getNewShippedToDeliveryRequest(Delivery delivery) {
+    private DeliveryRequest getNewShippedToDeliveryRequest(ru.yandex.practicum.model.Delivery delivery) {
         return new DeliveryRequest(
                 delivery.getOrderId(),
                 delivery.getDeliveryId()
         );
     }
 
-    private Delivery buildDeliveryEntity(DeliveryDto dto) {
-        return Delivery.builder()
+    private ru.yandex.practicum.model.Delivery buildDeliveryEntity(DeliveryDto dto) {
+        return ru.yandex.practicum.model.Delivery.builder()
                 .orderId(dto.getOrderId())
                 .senderAddress(addressMapper.toEntity(dto.getSenderAddress()))
                 .recipientAddress(addressMapper.toEntity(dto.getRecipientAddress()))

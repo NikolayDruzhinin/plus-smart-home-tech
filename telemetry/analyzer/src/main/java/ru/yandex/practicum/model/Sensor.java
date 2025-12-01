@@ -13,7 +13,7 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Sensor {
     @Id
