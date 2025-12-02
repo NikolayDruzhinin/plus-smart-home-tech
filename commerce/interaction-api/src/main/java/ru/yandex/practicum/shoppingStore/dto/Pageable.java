@@ -1,0 +1,49 @@
+package ru.yandex.practicum.shoppingStore.dto;
+
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+@Data
+@AllArgsConstructor
+public class Pageable {
+    @Min(value = 0, message = "Page number must not be negative")
+    private final Integer page;
+
+    @Positive(message = "Page size must be positive")
+    private final Integer size = 100;
+
+    @NotNull
+    private final List<String> sort = Collections.emptyList();
+
+    public PageRequest toPageRequest() {
+        Sort sortObj = parseSort();
+        return PageRequest.of(page, size, sortObj);
+    }
+
+    private Sort parseSort() {
+        if (sort == null || sort.isEmpty()) {
+            return Sort.unsorted();
+        }
+
+        List<Sort.Order> orders = new ArrayList<>();
+        for (String entry : sort) {
+            String[] parts = entry.split(",");
+            String property = parts[0].trim();
+            Sort.Direction direction = (parts.length > 1 && parts[1].equalsIgnoreCase("desc"))
+                    ? Sort.Direction.DESC
+                    : Sort.Direction.ASC;
+            orders.add(new Sort.Order(direction, property));
+        }
+        return Sort.by(orders);
+    }
+}

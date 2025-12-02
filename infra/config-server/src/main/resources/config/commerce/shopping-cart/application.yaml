@@ -12,8 +12,8 @@ spring:
       enabled: ALWAYS
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:6432/smart-home-commerce-cart
-    username: username
+    url: jdbc:postgresql://localhost:5432/smart-home-commerce-cart
+    username: commerce_cart_user
     password: password
 
 logging:
